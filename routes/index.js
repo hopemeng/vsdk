@@ -10,7 +10,7 @@ router.get('/', async (ctx, next) => {
     title: 'Hello Koa 2!'
   })
 })
-//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:1,wxGameId:1,wxAppParams:'',channelId:1,adType:1})
+//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:1,wxGameId:1,wxAppParams:'',channelId:1,adType:1,end_date:'2019-03-31'})
 //db.ad.insert({adId:1,adType:1,picUrl:'http:www.1.com',picMd5:'wmasqw123',adName:'测试广告'})
 //db.channel.insert({channelId:1,channelName:'测试渠道'})
 
@@ -40,6 +40,7 @@ router.get('/ad/list', async (ctx, next) => {
       const adInfo = await db.collection('ad').findOne({ adId: order.adId });
       data.adType = adInfo.adType;
       data.adId = order.adId;
+      data.orderId = order.orderId;
       data.wxAppId = order.wxAppId;
       data.wxGameId = order.wxGameId;
       data.wxAppParams = order.wxAppParams;
