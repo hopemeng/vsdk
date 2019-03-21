@@ -10,7 +10,7 @@ router.get('/', async (ctx, next) => {
     title: 'Hello Koa 2!'
   })
 })
-//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:1,wxGameId:1,wxAppParams:'',channelId:1,adType:1,end_date:'2019-03-31'})
+//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:"wxb6c5cd631cf7a1c4",wxGameId:"gh_22905d787f66",wxAppParams:"/pages/index/index?channel=464957001",channelName:'测试渠道',adType:1,end_date:'2019-03-31'})
 //db.ad.insert({adId:1,adType:1,picUrl:'http:www.1.com',picMd5:'wmasqw123',adName:'测试广告'})
 //db.channel.insert({channelId:1,channelName:'测试渠道'})
 
@@ -19,17 +19,17 @@ router.get('/ad/list', async (ctx, next) => {
   const rules = { 
     adType: { required: true, type: 'int' },
     deviceId: { required: true, type: 'string' },
-    channelId: { required: true, type: 'int' }, 
+    channelName: { required: true, type: 'string' }, 
   }
   common.params_handler(ctx, rules);
   const params = ctx.request.query;
   const errors = common.validate(rules, params);
   if (errors) return ctx.body = { errors };
 
-  const { adType, deviceId, channelId } = ctx.request.query;
-  const channel = await db.collection('channel').findOne({ channelId });
+  const { adType, deviceId, channelName } = ctx.request.query;
+  const channel = await db.collection('channel').findOne({ channelName });
   if (!channel) ctx.throw(400, '渠道不存在');
-  let orderList = await db.collection('order').find({ channelId, adType }).toArray();
+  let orderList = await db.collection('order').find({ channelName, adType }).toArray();
   const today = moment().format('YYYY-MM-DD');
   orderList = lodash.shuffle(orderList);
   const data = {};
@@ -59,7 +59,7 @@ router.post('/report', async (ctx) => {
   const rules = { 
     adType: { required: true, type: 'int' },
     deviceId: { required: true, type: 'string' },
-    channelId: { required: true, type: 'int' }, 
+    channelName: { required: true, type: 'string' }, 
     adId: { required: true, type: 'int' }, 
     orderId: { required: true, type: 'int' }, 
     action: { required: true, type: 'string' }, 
@@ -69,11 +69,11 @@ router.post('/report', async (ctx) => {
   const errors = common.validate(rules, params);
   if (errors) return ctx.body = { errors };
 
-  const { deviceId, channelId, adId, orderId, action } = ctx.request.body;
+  const { deviceId, channelName, adId, orderId, action } = ctx.request.body;
   const [ order, ad, channel ] = await Promise.all([
     db.collection('order').findOne({ orderId }),
     db.collection('ad').findOne({ adId }),
-    db.collection('channel').findOne({ channelId })
+    db.collection('channel').findOne({ channelName })
   ]);
   if (!order || !ad || !channel) ctx.throw(400, '上报数据有误');
   const today = moment().format('YYYY-MM-DD');
