@@ -87,8 +87,8 @@ router.post('/report', async (ctx) => {
     const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
     await redis.expireat(`clickADdeviceIdSet#${orderId}`, timeStamp/1000);
     await redis.incr(`clickTimes#${orderId}`);
-    const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
-    await redis.expireat(`clickTimes#${orderId}`, timeStamp/1000);
+    const clickTimeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
+    await redis.expireat(`clickTimes#${orderId}`, clickTimeStamp/1000);
   }
   if (action === 'show') {
     await redis.incr(`showTimes#${orderId}`);
