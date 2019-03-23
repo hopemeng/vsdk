@@ -24,3 +24,4 @@
 // channelName: { type: String }, // 渠道名称
 // showTimes: { type: String }, // 同一用户最多展示次数
 // showType: { type: Number }, // 展示类型 1 投放期间，2 每天
+// online: { type: Number }, // 上线状态 1 上线 0下线

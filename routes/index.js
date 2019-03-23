@@ -29,14 +29,23 @@ router.get('/ad/list', async (ctx, next) => {
   const { adType, deviceId, channelName } = ctx.request.query;
   const channel = await db.collection('channel').findOne({ channelName });
   if (!channel) ctx.throw(400, '渠道不存在');
-  let orderList = await db.collection('order').find({ channelName, adType }).toArray();
+  let orderList = await db.collection('order').find({ channelName, adType, online: 1 }).toArray();
   const today = moment().format('YYYY-MM-DD');
   orderList = lodash.shuffle(orderList);
   const data = {};
+  const [ CPC, CPM ] = [ 1, 2 ];
   for (const order of orderList) {
     const repeatDeviceId = await redis.sismember(`clickADdeviceIdSet#${order.orderId}`, deviceId);
-    const showTimes = (await redis.get(`showTimes#${order.orderId}#${today}`)) || 0;
-    if (repeatDeviceId === 0 && parseInt(showTimes) < order.showTimes) { // 没点击过的设备 并且展示次数没达标
+    const showTimes = (await redis.get(`showTimes#${order.orderId}`)) || 0;
+    const clickTimes = (await redis.get(`clickTimes#${order.orderId}`)) || 0;
+    // CPM 展示大于投放数量 或者 CPC 点击大于投放数量 的广告下线
+    if (order.amount !== -1 && ((order.payType === CPC && clickTimes > order.amount) || 
+    (order.payType === CPM && showTimes > order.amount))) {
+      await db.collection('order').updateOne({ orderId: order.orderId }, { $set: { online: 0 }});
+      continue;
+    }
+    // 没点击过的设备 并且同一用户展示次数没达标 
+    if (repeatDeviceId === 0 && (order.showTimes === -1 || parseInt(showTimes) < order.showTimes)) { 
       data.adType = order.adType;
       data.orderId = order.orderId;
       data.wxAppId = order.wxAppId;
@@ -77,11 +86,14 @@ router.post('/report', async (ctx) => {
     await redis.sadd(`clickADdeviceIdSet#${orderId}`, deviceId);
     const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
     await redis.expireat(`clickADdeviceIdSet#${orderId}`, timeStamp/1000);
+    await redis.incr(`clickTimes#${orderId}`);
+    const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
+    await redis.expireat(`clickTimes#${orderId}`, timeStamp/1000);
   }
   if (action === 'show') {
-    await redis.incr(`showTimes#${orderId}#${today}`);
-    const timeStamp = new Date(`${today} 23:59:59`).getTime();
-    await redis.expireat(`showTimes#${orderId}#${today}`, timeStamp/1000);
+    await redis.incr(`showTimes#${orderId}`);
+    const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
+    await redis.expireat(`showTimes#${orderId}`, timeStamp/1000);
   }
 
   await db.collection('report').insertOne(params);
