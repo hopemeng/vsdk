@@ -60,8 +60,8 @@ router.post('/report', async (ctx) => {
     adType: { required: true, type: 'int' },
     deviceId: { required: true, type: 'string' },
     channelName: { required: true, type: 'string' }, 
-    adId: { required: true, type: 'int' }, 
-    orderId: { required: true, type: 'int' }, 
+    adId: { required: false, type: 'int' }, 
+    orderId: { required: false, type: 'int' }, 
     action: { required: true, type: 'string' }, 
     message: { required: false, type: 'string' }, 
   }
