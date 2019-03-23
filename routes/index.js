@@ -24,7 +24,7 @@ router.get('/ad/list', async (ctx, next) => {
   common.params_handler(ctx, rules);
   const params = ctx.request.query;
   const errors = common.validate(rules, params);
-  if (errors) return ctx.body = { errors };
+  if (errors) ctx.throw(400, '参数错误');
 
   const { adType, deviceId, channelName } = ctx.request.query;
   const channel = await db.collection('channel').findOne({ channelName });
@@ -67,7 +67,7 @@ router.post('/report', async (ctx) => {
   }
   const params = ctx.request.body;
   const errors = common.validate(rules, params);
-  if (errors) return ctx.body = { errors };
+  if (errors) ctx.throw(400, '参数错误');
 
   const { deviceId, channelName, adId, orderId, action } = ctx.request.body;
   const [ order, ad, channel ] = await Promise.all([
