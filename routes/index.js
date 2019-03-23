@@ -10,7 +10,7 @@ router.get('/', async (ctx, next) => {
     title: 'Hello Koa 2!'
   })
 })
-//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:"wxb6c5cd631cf7a1c4",wxGameId:"gh_22905d787f66",wxAppParams:"/pages/index/index?channel=464957001",channelName:'测试渠道',adType:1,end_date:'2019-03-31'})
+//db.order.insert({orderId:1,adId:1,showTimes:3,wxAppId:"wxb6c5cd631cf7a1c4",wxGameId:"gh_22905d787f66",wxAppParams:"/pages/index/index?channel=464957001",channelName:'测试渠道',adType:1,endDate:'2019-03-31'})
 //db.ad.insert({adId:1,adType:1,picUrl:'http:www.1.com',picMd5:'wmasqw123',adName:'测试广告'})
 //db.channel.insert({channelId:1,channelName:'测试渠道'})
 
@@ -35,17 +35,15 @@ router.get('/ad/list', async (ctx, next) => {
   const data = {};
   for (const order of orderList) {
     const repeatDeviceId = await redis.sismember(`clickADdeviceIdSet#${order.orderId}`, deviceId);
-    const showTimes = (await redis.get(`showTimes#${order.adId}#${today}`)) || 0;
+    const showTimes = (await redis.get(`showTimes#${order.orderId}#${today}`)) || 0;
     if (repeatDeviceId === 0 && parseInt(showTimes) < order.showTimes) { // 没点击过的设备 并且展示次数没达标
-      const adInfo = await db.collection('ad').findOne({ adId: order.adId });
-      data.adType = adInfo.adType;
-      data.adId = order.adId;
+      data.adType = order.adType;
       data.orderId = order.orderId;
       data.wxAppId = order.wxAppId;
       data.wxGameId = order.wxGameId;
       data.wxAppParams = order.wxAppParams;
-      data.picUrl = adInfo.picUrl;
-      data.picMd5 = adInfo.picMd5;
+      data.picUrl = order.picUrl;
+      data.picMd5 = order.picMd5;
       break;
     }
   }
@@ -60,7 +58,6 @@ router.post('/report', async (ctx) => {
     adType: { required: true, type: 'int' },
     deviceId: { required: true, type: 'string' },
     channelName: { required: true, type: 'string' }, 
-    adId: { required: false, type: 'int' }, 
     orderId: { required: false, type: 'int' }, 
     action: { required: true, type: 'string' }, 
     message: { required: false, type: 'string' }, 
@@ -69,23 +66,22 @@ router.post('/report', async (ctx) => {
   const errors = common.validate(rules, params);
   if (errors) ctx.throw(400, '参数错误');
 
-  const { deviceId, channelName, adId, orderId, action } = ctx.request.body;
-  const [ order, ad, channel ] = await Promise.all([
+  const { deviceId, channelName, orderId, action } = ctx.request.body;
+  const [ order, channel ] = await Promise.all([
     db.collection('order').findOne({ orderId }),
-    db.collection('ad').findOne({ adId }),
     db.collection('channel').findOne({ channelName })
   ]);
-  if (!order || !ad || !channel) ctx.throw(400, '上报数据有误');
+  if (!order || !channel) ctx.throw(400, '上报数据有误');
   const today = moment().format('YYYY-MM-DD');
   if (action === 'click') {
     await redis.sadd(`clickADdeviceIdSet#${orderId}`, deviceId);
-    const timeStamp = new Date(`${order.end_date} 23:59:59`).getTime();
+    const timeStamp = new Date(`${order.endDate} 23:59:59`).getTime();
     await redis.expireat(`clickADdeviceIdSet#${orderId}`, timeStamp/1000);
   }
   if (action === 'show') {
-    await redis.incr(`showTimes#${adId}#${today}`);
+    await redis.incr(`showTimes#${orderId}#${today}`);
     const timeStamp = new Date(`${today} 23:59:59`).getTime();
-    await redis.expireat(`showTimes#${adId}#${today}`, timeStamp/1000);
+    await redis.expireat(`showTimes#${orderId}#${today}`, timeStamp/1000);
   }
 
   await db.collection('report').insertOne(params);

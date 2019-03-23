@@ -8,6 +8,8 @@ const logger = require('koa-logger')
 
 const index = require('./routes/index')
 const users = require('./routes/users')
+const channel = require('./routes/channel')
+const order = require('./routes/order')
 
 app.use(async (ctx, next) => {
   try {
@@ -47,6 +49,8 @@ app.use(async (ctx, next) => {
 // routes
 app.use(index.routes(), index.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
+app.use(channel.routes(), channel.allowedMethods())
+app.use(order.routes(), order.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
