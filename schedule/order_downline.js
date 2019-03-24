@@ -2,8 +2,10 @@ const schedule = require('node-schedule');
 const db = require('../lib/mongodb');
 const redis = require('../lib/redis');
 const moment = require('moment');
+const common = require('../lib/common');
 
 const j = schedule.scheduleJob('0 * * *', function() {
+  const lock = await common.redlock.lock(`scheduleLock`, 300000);
   
   const yesterday = moment().subtract(1, 'day').format('YYYY-MM-DD');
   // 渠道活跃用户数统计
@@ -46,7 +48,8 @@ const j = schedule.scheduleJob('0 * * *', function() {
       updateAt: new Date()
     })
   }
-
   // 自动下线
   await db.collection('order').update({ endDate: { $lte: new Date()}}, { $set: { online: 0 } });
+
+  await app.redlock.unlock(lock);
 });
