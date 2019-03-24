@@ -17,11 +17,9 @@ router.post('/insert', async function (ctx, next) {
   const { channelPkg, channelName } = ctx.request.body;
   const channel = await db.collection('channel').findOne({ channelName });
   if (channel) ctx.throw(400, '渠道已存在，添加失败');
-  const channelId = Math.round(Math.random() * 100000000);
   await db.collection('channel').insertOne({ 
     channelName, 
     channelPkg, 
-    channelId, 
     createAt: new Date(), 
     updateAt: new Date(), 
   });
