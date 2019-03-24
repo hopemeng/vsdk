@@ -27,8 +27,29 @@ router.post('/insert', async function (ctx, next) {
 })
 
 router.post('/query', async function (ctx, next) {
-  const channel = await db.collection('channel').find().toArray();
-  ctx.body = { code: 200, data: channel };
+  const rules = {
+    index: {required: true, type: 'int'},
+    limit: {required: true, type: 'int'}
+  };
+  common.params_handler(ctx, rules);
+  const {index, limit} = ctx.request.body;
+  const channel = await db.collection('channel').find().limit(limit).skip((index-1)*limit).toArray();
+  const count = await db.collection('channel').count();
+  ctx.body = { code: 200, data: {list:channel, count} };
+})
+
+// 渠道活跃统计
+router.post('/stat', async function (ctx, next) {
+  const rules = {
+    index: {required: true, type: 'int'},
+    limit: {required: true, type: 'int'}
+  };
+  common.params_handler(ctx, rules);
+  const {index, limit} = ctx.request.body;
+  const query = common.get_request_params(ctx);
+  const channelStat = await db.collection('orderStat').find(query).limit(limit).skip((index-1)*limit).toArray();
+  const count = await db.collection('orderStat').count(query);
+  ctx.body = { code: 200, data: {list:channelStat, count} };
 })
 
 module.exports = router
