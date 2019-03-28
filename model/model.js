@@ -26,7 +26,7 @@
 // appDescription: { type: String }, // 应用描述
 // payType: { type: Number }, // 付费方式 1 CPC，2 CPM
 // amount: { type: Number }, // 投放数量
-// channelName: { type: String }, // 渠道名称
+// channelName: { type: Array[String] }, // 渠道名称
 // showTimes: { type: String }, // 同一用户最多展示次数
 // showType: { type: Number }, // 展示类型 1 投放期间，2 每天
 // online: { type: Number }, // 上线状态 1 上线 0下线
