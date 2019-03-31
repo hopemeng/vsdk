@@ -14,9 +14,13 @@ router.post('/query', async function (ctx, next) {
     online: {required: true, type: 'int'}
 	};
 	common.params_handler(ctx, rules);
-	const {index, limit, online} = ctx.request.body;
-	const order = await db.collection('order').find({online}).limit(limit).skip((index-1)*limit).toArray();
-	const count = await db.collection('order').count({online});
+	const {index, limit, isOnline} = ctx.request.body;
+	const query = {};
+
+	isOnline && (query.online = Number(isOnline));
+
+	const order = await db.collection('order').find(query).limit(limit).skip(index*limit).toArray();
+	const count = await db.collection('order').countDocuments(query);
 	ctx.body = { code: 200, data: {list: order, count} };
 })
 
@@ -30,10 +34,24 @@ router.post('/stat', async function (ctx, next) {
 	const {index, limit} = ctx.request.body;
 
 	// 查询条件
-	const query = common.get_request_params(ctx);
+	const reqBody = ctx.request.body;
+	const query = {
+		index: reqBody.index,
+		limit: reqBody.limit
+	};
+	if ( reqBody.promoteAppName ) query.appName = reqBody.promoteAppName;
+	if ( reqBody.orderId ) query.orderId = reqBody.orderId;
+	if ( reqBody.startDate ) {
+		query.statDate = query.statDate || {};
+		query.statDate['$gte'] = new Date(reqBody.startDate);
+	}
+	if ( reqBody.endDate ) {
+		query.statDate = query.statDate || {};
+		query.statDate['$lte'] = new Date(reqBody.endDate);
+	}
 
-	const orderStat = await db.collection('orderStat').find(query).limit(limit).skip((index-1)*limit).toArray();
-	const count = await db.collection('orderStat').count(query);
+	const orderStat = await db.collection('orderStat').find(query).limit(limit).skip(index*limit).toArray();
+	const count = await db.collection('orderStat').countDocuments(query);
 	ctx.body = { code: 200, data: {list: orderStat, count} };
 })
 
