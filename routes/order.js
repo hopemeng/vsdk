@@ -1,8 +1,19 @@
 const router = require('koa-router')()
 const common = require('../lib/common');
 const db = require('../lib/mongodb');
+const multer  = require('koa-multer')
+const upload = multer({ dest: 'uploads/' })
 
 router.prefix('/order')
+
+router.post('/upload', upload.single('picture'), async function (ctx, next) {
+	const file = ctx.req.file;
+	const data = {
+		picUrl: `${__dirname}/${file.path}`,
+		picMd5: file.filename,
+	}
+	ctx.body = { code: 200, data };
+})
 
 router.post('/insert', async function (ctx, next) {
 })
@@ -49,6 +60,5 @@ router.post('/updateOrderStatus', async (ctx, next) => {
 	await db.collection('order').update({orderId}, {online});
 	ctx.body = { code: 200, data: {} };
 })
-
 
 module.exports = router
