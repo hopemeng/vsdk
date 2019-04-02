@@ -79,10 +79,11 @@ router.post('/report', async (ctx) => {
     db.collection('order').findOne({ orderId }),
     db.collection('channel').findOne({ channelName })
   ]);
-  if (!order || !channel) ctx.throw(400, '上报数据有误');
+  if (!channel) ctx.throw(400, '上报数据有误');
   const today = moment().format('YYYY-MM-DD');
   const everyDayExpireTime = (new Date(moment().add(3, 'day').format('YYYY-MM-DD')).getTime()) / 1000;
-  const totalExpireTime = (new Date(moment(order.endDate).add(3, 'day').format('YYYY-MM-DD')).getTime()) / 1000;
+  let totalExpireTime = 10;
+  if (order) totalExpireTime = (new Date(moment(order.endDate).add(3, 'day').format('YYYY-MM-DD')).getTime()) / 1000;
   const pipe = redis.pipeline(false);
 
   if (action === 'click') { // 点击

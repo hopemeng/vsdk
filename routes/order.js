@@ -2,11 +2,20 @@ const router = require('koa-router')()
 const common = require('../lib/common');
 const db = require('../lib/mongodb');
 const multer  = require('koa-multer')
-const upload = multer({ dest: 'uploads/' })
 const moment = require('moment');
 
 router.prefix('/order')
 
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+	  cb(null, 'uploads/')
+	},
+	filename: function (req, file, cb) {
+	  cb(null, Date.now() + '.jpg')
+	}
+  })
+  
+const upload = multer({ storage: storage })
 router.post('/upload', upload.single('picture'), async function (ctx, next) {
 	const file = ctx.req.file;
 	const data = {
