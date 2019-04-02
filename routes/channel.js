@@ -1,6 +1,7 @@
 const router = require('koa-router')()
 const common = require('../lib/common');
 const db = require('../lib/mongodb');
+const moment = require('moment');
 
 router.prefix('/channel')
 
@@ -46,19 +47,18 @@ router.post('/stat', async function (ctx, next) {
   };
   common.params_handler(ctx, rules);
   const {index, limit, hostChannel, startDate, endDate} = ctx.request.body;
-  const query = {
-    index, limit,
-    channelName: hostChannel
-  };
+  const query = {};
   if ( startDate ) {
     query.statDate = query.statDate || {};
-    query.statDate['$gte'] = new Date(startDate);
+    query.statDate['$gte'] = moment(startDate).format('YYYY-MM-DD');
   }
   if ( endDate ) {
     query.statDate = query.statDate || {};
-    query.statDate['$lte'] = new Date(endDate);
+    query.statDate['$lte'] = moment(endDate).format('YYYY-MM-DD');
   }
-  const channelStat = await db.collection('channelStat').find().limit(limit).skip(index*limit).toArray();
+  hostChannel && (query.channelName=hostChannel);
+  console.log(query)
+  const channelStat = await db.collection('channelStat').find(query).limit(limit).skip(index*limit).toArray();
   const count = await db.collection('channelStat').countDocuments(query);
   ctx.body = { code: 200, data: {list:channelStat, count} };
 })
