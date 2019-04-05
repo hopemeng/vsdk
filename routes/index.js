@@ -63,7 +63,7 @@ router.get('/ad/list', async (ctx, next) => {
  */
 router.post('/report', async (ctx) => {
   const rules = { 
-    adType: { required: true, type: 'int' },
+    adType: { required: false, type: 'int' },
     deviceId: { required: true, type: 'string' },
     channelName: { required: true, type: 'string' }, 
     orderId: { required: false, type: 'int' }, 
