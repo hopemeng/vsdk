@@ -19,7 +19,7 @@ const upload = multer({ storage: storage })
 router.post('/upload', upload.single('picture'), async function (ctx, next) {
 	const file = ctx.req.file;
 	const data = {
-		picUrl: `${__dirname}/${file.path}`,
+		picUrl: `http://47.107.177.10:8183/${file.path}`,
 		picMd5: file.filename,
 	}
 	ctx.body = { code: 200, data };
