@@ -121,6 +121,7 @@ async function _insertOrder(ctx) {
     let orderId = (Math.random()*10000000).toFixed();
     insertObj.orderId = orderId;
     insertObj.online = 0;
+    insertObj._id && delete insertObj._id;
     console.log('insert order', insertObj);
     await db.collection('order').insertOne(insertObj);
 
