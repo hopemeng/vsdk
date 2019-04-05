@@ -66,7 +66,7 @@ async function _updateOrder(ctx) {
         updateFields = {};
 
     for (let key in reqBody) {
-        updateFields[key] = reqBody[key];
+        if ( !['_id', 'Id'].includes(key) ) updateFields[key] = reqBody[key];
     }
     updateFields.createTime = moment(updateFields.createTime).format('YYYY-MM-DD HH:mm:ss');
 
