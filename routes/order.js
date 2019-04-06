@@ -76,7 +76,7 @@ async function _updateOrder(ctx) {
     })
 
     if (!reqBody.adId) {
-    	let adId = (Math.random()*10000000).toFixed();
+    	let adId = Math.floor((Math.random()*10000000));
     	updateFields.adId = insertAppObj.adId = adId;
     	console.log('insert promote_app', insertAppObj);
     	await db.collection('promote_app').insert(insertAppObj);
@@ -112,13 +112,13 @@ async function _insertOrder(ctx) {
 
     // 未选择应用
     if ( !reqBody.adId ) {
-    	let adId = (Math.random()*10000000).toFixed();
+    	let adId = Math.floor((Math.random()*10000000));
     	insertObj.adId = insertAppObj.adId = adId;
     	console.log('insert promote_app', insertAppObj);
     	await db.collection('promote_app').insertOne(insertAppObj);
     }
 
-    let orderId = (Math.random()*10000000).toFixed();
+    let orderId = Math.floor((Math.random()*10000000));
     insertObj.orderId = orderId;
     insertObj.online = 0;
     insertObj._id && delete insertObj._id;
