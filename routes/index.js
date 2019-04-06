@@ -38,8 +38,8 @@ router.get('/ad/list', async (ctx, next) => {
     const showTimes = parseInt((await redis.get(`showTimes#${order.orderId}`)) || 0);
     const clickTimes = parseInt((await redis.get(`clickTimes#${order.orderId}`)) || 0);
     // CPM 展示大于投放数量 或者 CPC 点击大于投放数量 的广告下线
-    if (order.amount !== -1 && ((order.payType === CPC && clickTimes > order.amount) || 
-    (order.payType === CPM && showTimes > order.amount))) {
+    if (order.amount !== -1 && ((order.payType === CPC && clickTimes >= order.amount) || 
+    (order.payType === CPM && showTimes >= order.amount))) {
       await db.collection('order').updateOne({ orderId: order.orderId }, { $set: { online: 0 }});
       continue;
     }
