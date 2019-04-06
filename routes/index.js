@@ -70,6 +70,7 @@ router.post('/report', async (ctx) => {
     action: { required: true, type: 'string' }, 
     message: { required: false, type: 'string' }, 
   }
+  common.params_handler(ctx, rules);
   const params = ctx.request.body;
   const errors = common.validate(rules, params);
   if (errors) ctx.throw(400, '参数错误');
