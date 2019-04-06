@@ -140,7 +140,7 @@ router.post('/query', async function (ctx, next) {
 
 	isOnline && (query.online = Number(isOnline));
 
-	const order = await db.collection('order').find(query).limit(limit).skip(index*limit).toArray();
+	const order = await db.collection('order').find(query).limit(limit).skip(index).toArray();
 	const count = await db.collection('order').countDocuments(query);
 	ctx.body = { code: 200, data: {list: order, count} };
 })
@@ -182,7 +182,7 @@ router.post('/stat', async function (ctx, next) {
 	// 联盟加的字段
 	['1', '2', '3'].includes(query.orderId) && (query.orderId=+query.orderId);
 
-	const orderStat = await db.collection('orderStat').find(query).limit(limit).skip(index*limit).toArray();
+	const orderStat = await db.collection('orderStat').find(query).limit(limit).skip(index).toArray();
 	const count = await db.collection('orderStat').countDocuments(query);
 	ctx.body = { code: 200, data: {list: orderStat, count} };
 })

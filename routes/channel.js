@@ -34,7 +34,7 @@ router.post('/query', async function (ctx, next) {
   // };
   // common.params_handler(ctx, rules);
   const {index=0, limit=100} = ctx.request.body;
-  const channel = await db.collection('channel').find().limit(limit).skip(index*limit).toArray();
+  const channel = await db.collection('channel').find().limit(limit).skip(index).toArray();
   const count = await db.collection('channel').countDocuments();
   ctx.body = { code: 200, data: {list:channel, count} };
 })
@@ -58,7 +58,7 @@ router.post('/stat', async function (ctx, next) {
   }
   hostChannel && (query.channelName=hostChannel);
   console.log(query)
-  const channelStat = await db.collection('channelStat').find(query).limit(limit).skip(index*limit).toArray();
+  const channelStat = await db.collection('channelStat').find(query).limit(limit).skip(index).toArray();
   const count = await db.collection('channelStat').countDocuments(query);
   ctx.body = { code: 200, data: {list:channelStat, count} };
 })
