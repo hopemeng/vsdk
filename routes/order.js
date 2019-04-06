@@ -140,7 +140,7 @@ router.post('/query', async function (ctx, next) {
 
 	isOnline && (query.online = Number(isOnline));
 
-	const order = await db.collection('order').find(query).limit(limit).skip(index).toArray();
+	const order = await db.collection('order').find(query).sort({createTime: -1}).limit(limit).skip(index).toArray();
 	const count = await db.collection('order').countDocuments(query);
 	ctx.body = { code: 200, data: {list: order, count} };
 })

@@ -34,7 +34,7 @@ router.post('/query', async function (ctx, next) {
   // };
   // common.params_handler(ctx, rules);
   const {index=0, limit=100} = ctx.request.body;
-  const channel = await db.collection('channel').find().limit(limit).skip(index).toArray();
+  const channel = await db.collection('channel').find().sort({createTime: -1}).limit(limit).skip(index).toArray();
   const count = await db.collection('channel').countDocuments();
   ctx.body = { code: 200, data: {list:channel, count} };
 })
