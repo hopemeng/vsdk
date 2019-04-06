@@ -66,7 +66,7 @@ async function _updateOrder(ctx) {
         updateFields = {};
 
     for (let key in reqBody) {
-        updateFields[key] = reqBody[key];
+        if ( !['_id', 'Id'].includes(key) ) updateFields[key] = reqBody[key];
     }
     updateFields.createTime = moment(updateFields.createTime).format('YYYY-MM-DD HH:mm:ss');
 
@@ -121,6 +121,7 @@ async function _insertOrder(ctx) {
     let orderId = Math.floor((Math.random()*10000000));
     insertObj.orderId = orderId;
     insertObj.online = 0;
+    insertObj._id && delete insertObj._id;
     console.log('insert order', insertObj);
     await db.collection('order').insertOne(insertObj);
 
