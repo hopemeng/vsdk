@@ -57,8 +57,8 @@ router.post('/stat', async function (ctx, next) {
     query.statDate['$lte'] = moment(endDate).format('YYYY-MM-DD');
   }
   hostChannel && (query.channelName=hostChannel);
-  console.log(query)
-  const channelStat = await db.collection('channelStat').find(query).limit(limit).skip(index).toArray();
+
+  const channelStat = await db.collection('channelStat').find(query).sort({statDate: -1}).limit(limit).skip(index).toArray();
   const count = await db.collection('channelStat').countDocuments(query);
   ctx.body = { code: 200, data: {list:channelStat, count} };
 })

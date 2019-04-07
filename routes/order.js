@@ -182,7 +182,7 @@ router.post('/stat', async function (ctx, next) {
 	// 联盟加的字段
 	['1', '2', '3'].includes(query.orderId) && (query.orderId=+query.orderId);
 
-	const orderStat = await db.collection('orderStat').find(query).limit(limit).skip(index).toArray();
+	const orderStat = await db.collection('orderStat').find(query).sort({statDate:-1}).limit(limit).skip(index).toArray();
 	const count = await db.collection('orderStat').countDocuments(query);
 	ctx.body = { code: 200, data: {list: orderStat, count} };
 })
