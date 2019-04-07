@@ -126,6 +126,8 @@ router.post('/report', async (ctx) => {
   pipe.sadd(`channelActiveDeviceIdSet#${channelName}#${today}`, deviceId);
   pipe.expireat(`channelActiveDeviceIdSet#${channelName}#${today}`, everyDayExpireTime);
   await pipe.exec();
+  params.createAt = new Date();
+  params.updateAt = new Date();
   await db.collection('report').insertOne(params);
   ctx.body = { code: 200, data: {} };
 })
