@@ -10,7 +10,6 @@ const index = require('./routes/index')
 const users = require('./routes/users')
 const channel = require('./routes/channel')
 const order = require('./routes/order')
-//require('./schedule/order_downline')
 
 app.use(async (ctx, next) => {
   try {
