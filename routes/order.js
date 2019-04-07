@@ -163,10 +163,12 @@ router.post('/stat', async function (ctx, next) {
 	// 查询条件
 	const reqBody = ctx.request.body;
 	const query = {
-		hasData: {'$ne': 0},
-		show: {'$ne': 0},
-		close: {'$ne': 0},
-		click: {'$ne': 0}
+		'$or' : [
+			{hasData: {'$ne': 0}},
+			{show: {'$ne': 0}},
+			{close: {'$ne': 0}},
+			{click: {'$ne': 0}}
+		]
 	};
 	if ( reqBody.appName ) query.appName = reqBody.appName;
 	if ( reqBody.orderId ) query.orderId = reqBody.orderId;
@@ -181,7 +183,7 @@ router.post('/stat', async function (ctx, next) {
 
 	// 联盟加的字段
 	['1', '2', '3'].includes(query.orderId) && (query.orderId=+query.orderId);
-
+// console.log(query);
 	const orderStat = await db.collection('orderStat').find(query).sort({statDate:-1}).limit(limit).skip(index).toArray();
 	const count = await db.collection('orderStat').countDocuments(query);
 	ctx.body = { code: 200, data: {list: orderStat, count} };
